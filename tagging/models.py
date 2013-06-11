@@ -1,6 +1,8 @@
 """
 Models and managers for generic tagging.
 """
+from __future__ import unicode_literals
+
 # Python 2.3 compatibility
 try:
     set
@@ -11,6 +13,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection, models
 from django.db.models.query import QuerySet
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from tagging import settings
@@ -453,6 +456,7 @@ class TaggedItemManager(models.Manager):
 # Models #
 ##########
 
+@python_2_unicode_compatible
 class Tag(models.Model):
     """
     A tag.
@@ -466,9 +470,11 @@ class Tag(models.Model):
         verbose_name = _('tag')
         verbose_name_plural = _('tags')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
+
+@python_2_unicode_compatible
 class TaggedItem(models.Model):
     """
     Holds the relationship between a tag and the item being tagged.
@@ -486,5 +492,5 @@ class TaggedItem(models.Model):
         verbose_name = _('tagged item')
         verbose_name_plural = _('tagged items')
 
-    def __unicode__(self):
-        return u'%s [%s]' % (self.object, self.tag)
+    def __str__(self):
+        return '%s [%s]' % (self.object, self.tag)

@@ -2,11 +2,14 @@
 Tagging utilities - from user tag input parsing to tag cloud
 calculation.
 """
+from __future__ import unicode_literals
+
 import math
+import six # Python 2to3 compat lib
 import types
 
 from django.db.models.query import QuerySet
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 
 # Python 2.3 compatibility
@@ -26,13 +29,13 @@ def parse_tag_input(input):
     if not input:
         return []
 
-    input = force_unicode(input)
+    input = force_text(input)
 
     # Special case - if there are no commas or double quotes in the
     # input, we don't *do* a recall... I mean, we know we only need to
     # split on spaces.
-    if u',' not in input and u'"' not in input:
-        words = list(set(split_strip(input, u' ')))
+    if ',' not in input and '"' not in input:
+        words = list(set(split_strip(input, ' ')))
         words.sort()
         return words
 
@@ -46,46 +49,46 @@ def parse_tag_input(input):
     i = iter(input)
     try:
         while 1:
-            c = i.next()
-            if c == u'"':
+            c = six.advance_iterator(i)
+            if c == '"':
                 if buffer:
-                    to_be_split.append(u''.join(buffer))
+                    to_be_split.append(''.join(buffer))
                     buffer = []
                 # Find the matching quote
                 open_quote = True
-                c = i.next()
-                while c != u'"':
+                c = six.advance_iterator(i)
+                while c != '"':
                     buffer.append(c)
-                    c = i.next()
+                    c = six.advance_iterator(i)
                 if buffer:
-                    word = u''.join(buffer).strip()
+                    word = ''.join(buffer).strip()
                     if word:
                         words.append(word)
                     buffer = []
                 open_quote = False
             else:
-                if not saw_loose_comma and c == u',':
+                if not saw_loose_comma and c == ',':
                     saw_loose_comma = True
                 buffer.append(c)
     except StopIteration:
         # If we were parsing an open quote which was never closed treat
         # the buffer as unquoted.
         if buffer:
-            if open_quote and u',' in buffer:
+            if open_quote and ',' in buffer:
                 saw_loose_comma = True
-            to_be_split.append(u''.join(buffer))
+            to_be_split.append(''.join(buffer))
     if to_be_split:
         if saw_loose_comma:
-            delimiter = u','
+            delimiter = ','
         else:
-            delimiter = u' '
+            delimiter = ' '
         for chunk in to_be_split:
             words.extend(split_strip(chunk, delimiter))
     words = list(set(words))
     words.sort()
     return words
 
-def split_strip(input, delimiter=u','):
+def split_strip(input, delimiter=','):
     """
     Splits ``input`` on ``delimiter``, stripping each resulting string
     and returning a list of non-empty strings.
@@ -113,17 +116,17 @@ def edit_string_for_tags(tags):
     use_commas = False
     for tag in tags:
         name = tag.name
-        if u',' in name:
+        if ',' in name:
             names.append('"%s"' % name)
             continue
-        elif u' ' in name:
+        elif ' ' in name:
             if not use_commas:
                 use_commas = True
         names.append(name)
     if use_commas:
-        glue = u', '
+        glue = ', '
     else:
-        glue = u' '
+        glue = ' '
     return glue.join(names)
 
 def get_queryset_and_model(queryset_or_model):
@@ -164,22 +167,22 @@ def get_tag_list(tags):
         return [tags]
     elif isinstance(tags, QuerySet) and tags.model is Tag:
         return tags
-    elif isinstance(tags, types.StringTypes):
+    elif isinstance(tags, six.text_type):
         return Tag.objects.filter(name__in=parse_tag_input(tags))
-    elif isinstance(tags, (types.ListType, types.TupleType)):
+    elif isinstance(tags, (list, tuple)):
         if len(tags) == 0:
             return tags
         contents = set()
         for item in tags:
-            if isinstance(item, types.StringTypes):
+            if isinstance(item, six.text_type):
                 contents.add('string')
             elif isinstance(item, Tag):
                 contents.add('tag')
-            elif isinstance(item, (types.IntType, types.LongType)):
+            elif isinstance(item, six.integer_types):
                 contents.add('int')
         if len(contents) == 1:
             if 'string' in contents:
-                return Tag.objects.filter(name__in=[force_unicode(tag) \
+                return Tag.objects.filter(name__in=[force_text(tag) \
                                                     for tag in tags])
             elif 'tag' in contents:
                 return tags
@@ -206,9 +209,9 @@ def get_tag(tag):
         return tag
 
     try:
-        if isinstance(tag, types.StringTypes):
+        if isinstance(tag, six.text_type):
             return Tag.objects.get(name=tag)
-        elif isinstance(tag, (types.IntType, types.LongType)):
+        elif isinstance(tag, six.integer_types):
             return Tag.objects.get(id=tag)
     except Tag.DoesNotExist:
         pass

@@ -3,22 +3,18 @@ DIRNAME = os.path.dirname(__file__)
 
 DEFAULT_CHARSET = 'utf-8'
 
-test_engine = os.environ.get("TAGGING_TEST_ENGINE", "sqlite3")
+DATABASES = {
+    'default': {
+        'ENGINE':   'django.db.backends.sqlite3', 
+        'NAME':     'tagging_test',
+        'USER':     '', 
+        'PASSWORD': '', 
+        'HOST':     '', 
+        'PORT':     '',
+    }
+}
 
-DATABASE_ENGINE = test_engine
-DATABASE_NAME = os.environ.get("TAGGING_DATABASE_NAME", "tagging_test")
-DATABASE_USER = os.environ.get("TAGGING_DATABASE_USER", "")
-DATABASE_PASSWORD = os.environ.get("TAGGING_DATABASE_PASSWORD", "")
-DATABASE_HOST = os.environ.get("TAGGING_DATABASE_HOST", "localhost")
-
-if test_engine == "sqlite":
-    DATABASE_NAME = os.path.join(DIRNAME, 'tagging_test.db')
-    DATABASE_HOST = ""
-elif test_engine == "mysql":
-    DATABASE_PORT = os.environ.get("TAGGING_DATABASE_PORT", 3306)
-elif test_engine == "postgresql_psycopg2":
-    DATABASE_PORT = os.environ.get("TAGGING_DATABASE_PORT", 5432)
-
+SECRET_KEY = 'v2824l&2-n+4zznbsk9c-ap5i)b3e8b+%*a=dxqlahm^%)68jn'
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',

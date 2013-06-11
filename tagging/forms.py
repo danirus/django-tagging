@@ -1,6 +1,8 @@
 """
 Tagging components for Django's form library.
 """
+from __future__ import unicode_literals
+
 from django import forms
 from django.utils.translation import ugettext as _
 
@@ -30,7 +32,7 @@ class TagField(forms.CharField):
     """
     def clean(self, value):
         value = super(TagField, self).clean(value)
-        if value == u'':
+        if value == '':
             return value
         for tag_name in parse_tag_input(value):
             if len(tag_name) > settings.MAX_TAG_LENGTH:
