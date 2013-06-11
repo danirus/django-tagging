@@ -1,5 +1,5 @@
-django-tagging3
-===============
+django-tagging
+==============
 
 This is a generic tagging application for django projects. It's a fork of `brosner's one <https://github.com/brosner/django-tagging>`_ that adds Python 3 compatibility. Without sweetener.
 
