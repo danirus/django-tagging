@@ -1,13 +1,13 @@
 Installation
 ============
 
-Thanks for downloading django-tagging3.
+Thanks for downloading django-tagging.
 
 To install it, run the following command inside this directory:
 
     python setup.py install
 
-Or if you'd prefer you can simply place the included ``tagging3``
+Or if you'd prefer you can simply place the included ``tagging``
 directory somewhere on your Python path, or symlink to it from
 somewhere on your Python path; this is useful if you're working from a
 Subversion checkout.

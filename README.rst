@@ -17,9 +17,11 @@ Original code written by:
 * `Devin Carlen <https://github.com/devcamcar>`_
 * `Jacob Kaplan-Moss <https://github.com/jacobian>`_
 
-Patched by `Daniel Rus Morales <https://github.com/danirus>`_.
-
 For installation instructions, see the file "INSTALL.rst" in this
 directory; for instructions on how to use this application, and on
 what it provides, see the file "overview.txt" in the "docs/"
 directory.
+
+Includes a **test suite**. If you commit code, please consider adding proper coverage (especially if it has a chance for a regression) in the test suite.
+
+Run the tests with:  ``django-admin.py test tagging --settings=tagging.tests.settings --verbosity=2``
