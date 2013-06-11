@@ -1,9 +1,9 @@
 django-tagging
 ==============
 
-This is a generic tagging application for django projects. It's a fork of `brosner's one <https://github.com/brosner/django-tagging>`_ that adds Python 3 compatibility. Without sweetener.
+This is a generic tagging application for django projects. It's a fork of `brosner's one <https://github.com/brosner/django-tagging>`_ that adds Python 3 compatibility. 
 
-Tested under:
+Does not contain sweeteners. Tests passed under:
 
 * Python 3.2 and django 1.5.1
 * Python 2.7 and django 1.5.1
@@ -18,11 +18,6 @@ Original code written by:
 * `Jacob Kaplan-Moss <https://github.com/jacobian>`_
 
 Patched by `Daniel Rus Morales <https://github.com/danirus>`_.
-
-Find the code in:
-
-* `PyPI <http://pypi.python.org/pypi/django-tagging3/>`_
-* `GitHub <http://github.com/danirus/django-tagging3/>`_
 
 For installation instructions, see the file "INSTALL.rst" in this
 directory; for instructions on how to use this application, and on
