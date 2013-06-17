@@ -270,6 +270,16 @@ class TagManager(models.Manager):
                                          min_count=min_count))
         return calculate_cloud(tags, steps, distribution)
 
+    def cloud_for_models(self, models, steps=4, distribution=LOGARITHMIC,
+                         filters=None, min_count=None):
+        tags = []
+        for model in models:
+            tags.extend(list(self.usage_for_model(model, 
+                                                  counts=True, 
+                                                  filters=filters,
+                                                  min_count=min_count)))
+        return calculate_cloud(tags, steps, distribution)
+
 class TaggedItemManager(models.Manager):
     """
     FIXME There's currently no way to get the ``GROUP BY`` and ``HAVING``

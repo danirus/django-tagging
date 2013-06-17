@@ -34,6 +34,25 @@ class TagCloudForModelNode(Node):
             Tag.objects.cloud_for_model(model, **self.kwargs)
         return ''
 
+class TagCloudForModelsNode(Node):
+    def __init__(self, modelnames, context_var, **kwargs):
+        self.modelnames = modelnames
+        self.context_var = context_var
+        self.kwargs = kwargs
+
+    def render(self, context):
+        models = []
+        for modelname in self.modelnames:
+            model = get_model(*modelname.split('.'))
+            if model is None:
+                raise TemplateSyntaxError(_('tag_cloud_for_model tag was '
+                                            'given an invalid model'
+                                            ': %s') % modelname)
+            models.append(model)
+        context[self.context_var] = \
+            Tag.objects.cloud_for_models(models, **self.kwargs)
+        return ''
+
 class TagsForObjectNode(Node):
     def __init__(self, obj, context_var):
         self.obj = Variable(obj)
@@ -178,6 +197,73 @@ def do_tag_cloud_for_model(parser, token):
                 })
     return TagCloudForModelNode(bits[1], bits[3], **kwargs)
 
+def do_tag_cloud_for_models(parser, token):
+    """
+    Same as do_tag_cloud_for_model but retrieving tags for more than one model.
+
+    Usage:
+    
+       {% tag_cloud_for_models [model1] [model2] as [varname] with [options] %}
+    """
+    bits = token.contents.split()
+    index = 1
+    len_bits = len(bits)
+    modelnames = []
+    varname = None
+    kwargs = {}
+    while bits[index] != 'as':
+        modelnames.append(bits[index])
+        index += 1
+    if bits[index] == 'as':
+        varname = bits[index+1]
+        index += 2
+    while index < len_bits:
+        try:
+            if bits[index] == 'with':
+                index += 1
+                continue
+            name, value = bits[index].split('=')
+            if name == 'steps' or name == 'min_count':
+                try:
+                    kwargs[str(name)] = int(value)
+                except ValueError:
+                    raise TemplateSyntaxError(
+                        _("%(tag)s tag's '%(option)s' option was not a valid "
+                          "integer: '%(value)s'") % {
+                            'tag': bits[0], 
+                            'option': name, 
+                            'value': value 
+                        })
+            elif name == 'distribution':
+                if value in ['linear', 'log']:
+                    kwargs[str(name)] = {'linear': LINEAR, 
+                                         'log': LOGARITHMIC}[value]
+                else:
+                    raise TemplateSyntaxError(
+                        _("%(tag)s tag's '%(option)s' option was not a valid"
+                          "choice: '%(value)s'") % {
+                            'tag': bits[0], 
+                            'option': name,
+                            'value': value,
+                        })
+            else:
+                raise TemplateSyntaxError(
+                    _("%(tag)s tag was given an invalid option: "
+                      "'%(option)s'") % {
+                        'tag': bits[0],
+                        'option': name,
+                        })
+        except ValueError:
+            raise TemplateSyntaxError(
+                _("%(tag)s tag was given a badly formatted option: "
+                  "'%(option)s'") % {
+                    'tag': bits[0],
+                    'option': bits[index],
+                })
+        index += 1
+    return TagCloudForModelsNode(modelnames, varname, **kwargs)
+    
+
 def do_tags_for_object(parser, token):
     """
     Retrieves a list of ``Tag`` objects associated with an object and
@@ -227,5 +313,6 @@ def do_tagged_objects(parser, token):
 
 register.tag('tags_for_model', do_tags_for_model)
 register.tag('tag_cloud_for_model', do_tag_cloud_for_model)
+register.tag('tag_cloud_for_models', do_tag_cloud_for_models)
 register.tag('tags_for_object', do_tags_for_object)
 register.tag('tagged_objects', do_tagged_objects)
